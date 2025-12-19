@@ -1,0 +1,12 @@
+| 항목         | 기존 코드                       | 변경 코드                                         | 변경 목적                       |
+| ---------- | --------------------------- | --------------------------------------------- | --------------------------- |
+| 메시지 저장 구조  | `("user", message)` (tuple) | `{"role": "", "content": ""}` (dict)          | LLM 표준 형식 준수 / 호환성 향상       |
+| Prompt 구성  | `*message_history` 직접 포함    | `MessagesPlaceholder("messages")` 사용          | 메시지 맥락 유지 (history 전달)      |
+| 시스템 메시지 위치 | history 안에 저장               | Prompt에 명확하게 설정                               | 역할 구분 명확 / 설정 안정화           |
+| LLM 호출 데이터 | `{"user_input": ...}` 만 전달  | `{"messages": history, "user_input": ...}` 전달 | 대화 기억을 모델에 전달               |
+| role 명칭    | `'ai'`                      | `'assistant'`                                 | OpenAI/Anthropic 공식 role 명칭 |
+| 히스토리 출력    | tuple 기반 출력                 | dict 기반 출력                                    | 메시지 구조 일관화                  |
+| 스트리밍 처리    | 동일                          | 동일 적용                                         | 기능 유지                       |
+
+ +
+ 모델 업데이트
