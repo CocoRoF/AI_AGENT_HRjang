@@ -11,10 +11,15 @@ from langchain_google_genai import ChatGoogleGenerativeAI
 ###### dotenv を利用しない場合は消してください ######
 try:
     from dotenv import load_dotenv
+
     load_dotenv()
 except ImportError:
     import warnings
-    warnings.warn("dotenv not found. Please make sure to set your environment variables manually.", ImportWarning)
+
+    warnings.warn(
+        "dotenv not found. Please make sure to set your environment variables manually.",
+        ImportWarning,
+    )
 ################################################
 
 
@@ -23,22 +28,19 @@ MODEL_PRICES = {
         "gpt-3.5-turbo": 0.5 / 1_000_000,
         "gpt-4o": 5 / 1_000_000,
         "claude-3-5-sonnet-20240620": 3 / 1_000_000,
-        "gemini-1.5-pro-latest": 3.5 / 1_000_000
+        "gemini-1.5-pro-latest": 3.5 / 1_000_000,
     },
     "output": {
         "gpt-3.5-turbo": 1.5 / 1_000_000,
         "gpt-4o": 15 / 1_000_000,
         "claude-3-5-sonnet-20240620": 15 / 1_000_000,
-        "gemini-1.5-pro-latest": 10.5 / 1_000_000
-    }
+        "gemini-1.5-pro-latest": 10.5 / 1_000_000,
+    },
 }
 
 
 def init_page():
-    st.set_page_config(
-        page_title="My Great ChatGPT",
-        page_icon="🤗"
-    )
+    st.set_page_config(page_title="My Great ChatGPT", page_icon="🤗")
     st.header("My Great ChatGPT 🤗")
     st.sidebar.title("Options")
 
@@ -53,7 +55,8 @@ def init_messages():
 
 def select_model():
     temperature = st.sidebar.slider(
-        "Temperature:", min_value=0.0, max_value=2.0, value=0.0, step=0.1)
+        "Temperature:", min_value=0.0, max_value=2.0, value=0.0, step=0.1
+    )
 
     models = ("GPT-3.5", "GPT-4", "Claude 3.5 Sonnet", "Gemini 1.5 Pro")
     model = st.sidebar.radio("Choose a model:", models)
@@ -61,35 +64,31 @@ def select_model():
     if model == "GPT-3.5":
         st.session_state.model_name = "gpt-3.5-turbo"
         return ChatOpenAI(
-            temperature=temperature,
-            model=st.session_state.model_name         # ← 수정
+            temperature=temperature, model=st.session_state.model_name  # ← 수정
         )
     elif model == "GPT-4":
         st.session_state.model_name = "gpt-4o"
         return ChatOpenAI(
-            temperature=temperature,
-            model=st.session_state.model_name         # ← 수정
+            temperature=temperature, model=st.session_state.model_name  # ← 수정
         )
     elif model == "Claude 3.5 Sonnet":
         st.session_state.model_name = "claude-3-5-sonnet-20240620"
         return ChatAnthropic(
-            temperature=temperature,
-            model=st.session_state.model_name         # ← 수정
+            temperature=temperature, model=st.session_state.model_name  # ← 수정
         )
     elif model == "Gemini 1.5 Pro":
         st.session_state.model_name = "gemini-1.5-pro-latest"
         return ChatGoogleGenerativeAI(
             temperature=temperature,
-            model=st.session_state.model_name         # ← 유지 (원래 model이 맞음)
+            model=st.session_state.model_name,  # ← 유지 (원래 model이 맞음)
         )
 
 
 def init_chain():
     st.session_state.llm = select_model()
-    prompt = ChatPromptTemplate.from_messages([
-        *st.session_state.message_history,
-        ("user", "{user_input}")
-    ])
+    prompt = ChatPromptTemplate.from_messages(
+        [*st.session_state.message_history, ("user", "{user_input}")]
+    )
     output_parser = StrOutputParser()
     return prompt | st.session_state.llm | output_parser
 
@@ -118,10 +117,13 @@ def calc_and_display_costs():
     if len(st.session_state.message_history) == 1:
         return
 
-    input_cost = MODEL_PRICES['input'][st.session_state.model_name] * input_count
-    output_cost = MODEL_PRICES['output'][st.session_state.model_name] * output_count
+    input_cost = MODEL_PRICES["input"][st.session_state.model_name] * input_count
+    output_cost = MODEL_PRICES["output"][st.session_state.model_name] * output_count
 
-    if "gemini" in st.session_state.model_name and (input_count + output_count) > 128000:
+    if (
+        "gemini" in st.session_state.model_name
+        and (input_count + output_count) > 128000
+    ):
         input_cost *= 2
         output_cost *= 2
 
@@ -141,10 +143,10 @@ def main():
     for role, message in st.session_state.get("message_history", []):
         st.chat_message(role).markdown(message)
 
-    if user_input := st.chat_input("궁금한 내용을 입력해줘!"):
-        st.chat_message('user').markdown(user_input)
+    if user_input := st.chat_input("궁금한 내용을 입력해주세요."):
+        st.chat_message("user").markdown(user_input)
 
-        with st.chat_message('ai'):
+        with st.chat_message("ai"):
             response = st.write_stream(chain.stream({"user_input": user_input}))
 
         st.session_state.message_history.append(("user", user_input))
@@ -153,5 +155,5 @@ def main():
     calc_and_display_costs()
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()

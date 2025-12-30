@@ -71,7 +71,7 @@ def init_page():
             return_messages=True, memory_key="chat_history", k=10
         )
         st.session_state.custom_system_prompt = load_system_prompt(
-            "./part1/prompt/system_prompt.txt"
+            "./prompt/system_prompt.txt"
         )
         st.session_state.uploaded_files = []
 
@@ -144,7 +144,7 @@ def main():
         with st.chat_message(msg.type):
             display_content(msg.content)
 
-    if prompt := st.chat_input(placeholder="분석하고 싶은 내용을 입력해줘"):
+    if prompt := st.chat_input(placeholder="분석하고 싶은 내용을 입력해주세요."):
         st.chat_message("user").write(prompt)
 
         with st.chat_message("assistant"):

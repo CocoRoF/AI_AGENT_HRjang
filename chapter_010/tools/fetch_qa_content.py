@@ -8,20 +8,17 @@ from pydantic import BaseModel, Field
 
 
 class FetchQAContentInput(BaseModel):
-    """ 타입을 지정하기 위한 클래스 """
+    """타입을 지정하기 위한 클래스"""
+
     query: str = Field()
 
 
 @st.cache_resource
-def load_qa_vectorstore(
-    vectorstore_path="./chapter_010/vectorstore/qa_vectorstore"
-):
-    """ '자주 묻는 질문' 벡터 DB를 로드 """
+def load_qa_vectorstore(vectorstore_path="./vectorstore/qa_vectorstore"):
+    """'자주 묻는 질문' 벡터 DB를 로드"""
     embeddings = OpenAIEmbeddings()
     return FAISS.load_local(
-        vectorstore_path,
-        embeddings=embeddings,
-        allow_dangerous_deserialization=True
+        vectorstore_path, embeddings=embeddings, allow_dangerous_deserialization=True
     )
 
 
@@ -29,7 +26,7 @@ def load_qa_vectorstore(
 def fetch_qa_content(query):
     """
     '자주 묻는 질문' 리스트 중에서, 사용자의 질문과 관련된 콘텐츠를 찾아주는 도구입니다.
-    '베어모바일'에 관한 구체적인 정보를 얻는 데 도움이 됩니다.
+    '영진모바일'에 관한 구체적인 정보를 얻는 데 도움이 됩니다.
 
     이 도구는 `similarity`(유사도)와 `content`(콘텐츠)를 반환합니다.
     - 'similarity'는 답변이 질문과 얼마나 관련되어 있는지를 나타냅니다.
@@ -49,15 +46,8 @@ def fetch_qa_content(query):
       - content: str
     """
     db = load_qa_vectorstore()
-    docs = db.similarity_search_with_score(
-        query=query,
-        k=5,
-        score_threshold=0.5
-    )
+    docs = db.similarity_search_with_score(query=query, k=5, score_threshold=0.5)
     return [
-        {
-            "similarity": 1 - similarity,
-            "content": i.page_content
-        }
+        {"similarity": 1 - similarity, "content": i.page_content}
         for i, similarity in docs
     ]

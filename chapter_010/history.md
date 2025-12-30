@@ -43,12 +43,13 @@
 
 
 2. 
-setx LANGSMITH_TRACING "true"
-setx LANGSMITH_ENDPOINT "https://api.smith.langchain.com"
-setx LANGSMITH_API_KEY "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"
-setx LANGSMITH_PROJECT "customer-support"
+setx LANGCHAIN_TRACING_V2 "true"
+setx LANGCHAIN_ENDPOINT "https://api.smith.langchain.com"
+setx LANGCHAIN_API_KEY "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"
+setx LANGCHAIN_PROJECT "youngjin_mobile"
 
-$env:LANGSMITH_TRACING="true"
-$env:LANGSMITH_ENDPOINT="https://api.smith.langchain.com"
-$env:LANGSMITH_API_KEY="lsv2_pt_~~~~"
-$env:LANGSMITH_PROJECT="customer-support"
+$env:LANGCHAIN_TRACING_V2="true"
+$env:LANGCHAIN_ENDPOINT="https://api.smith.langchain.com"
+$env:LANGCHAIN_API_KEY="lsv2_pt_~~~~"
+$env:LANGCHAIN_PROJECT="youngjin_mobile"
+

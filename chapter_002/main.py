@@ -6,18 +6,20 @@ from langchain_core.output_parsers import StrOutputParser
 ###### dotenv를 사용하지 않는 경우 삭제하세요 ######
 try:
     from dotenv import load_dotenv
+
     load_dotenv()
 except ImportError:
     import warnings
-    warnings.warn("dotenv not found. Please make sure to set your environment variables manually.", ImportWarning)
+
+    warnings.warn(
+        "dotenv not found. Please make sure to set your environment variables manually.",
+        ImportWarning,
+    )
 ################################################
 
 
 def main():
-    st.set_page_config(
-        page_title="My Great ChatGPT",
-        page_icon="🤗"
-    )
+    st.set_page_config(page_title="My Great ChatGPT", page_icon="🤗")
     st.header("My Great ChatGPT 🤗")
 
     # 챗 히스토리 초기화: message_history가 없다면 생성
@@ -34,10 +36,12 @@ def main():
 
     # 2. 사용자 입력을 받아 ChatGPT에 전달하는 템플릿 생성
     #    템플릿에는 과거 챗 히스토리를 포함하도록 설정
-    prompt = ChatPromptTemplate.from_messages([
-        *st.session_state.message_history,
-        ("user", "{user_input}")  # 여기에 나중에 사용자 입력이 들어감
-    ])
+    prompt = ChatPromptTemplate.from_messages(
+        [
+            *st.session_state.message_history,
+            ("user", "{user_input}"),  # 여기에 나중에 사용자 입력이 들어감
+        ]
+    )
 
     # 3. ChatGPT의 응답을 파싱하는 처리 호출
     output_parser = StrOutputParser()
@@ -47,7 +51,7 @@ def main():
     chain = prompt | llm | output_parser
 
     # 사용자 입력 감시
-    if user_input := st.chat_input("궁금한 것을 입력해줘!"):
+    if user_input := st.chat_input("궁금한 것을 입력해주세요."):
         with st.spinner("ChatGPT가 답변 중 ..."):
             response = chain.invoke({"user_input": user_input})
 
@@ -62,5 +66,5 @@ def main():
         st.chat_message(role).markdown(message)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()

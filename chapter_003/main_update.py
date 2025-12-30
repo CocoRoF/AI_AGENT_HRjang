@@ -134,7 +134,7 @@ def main():
     for msg in st.session_state.message_history:
         st.chat_message(msg["role"]).markdown(msg["content"])
 
-    if user_input := st.chat_input("궁금한 내용을 입력해줘!"):
+    if user_input := st.chat_input("궁금한 내용을 입력해주세요."):
         st.session_state.message_history.append({"role": "user", "content": user_input})
         st.chat_message("user").markdown(user_input)
 

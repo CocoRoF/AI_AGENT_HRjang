@@ -34,7 +34,7 @@ def main():
         type=["png", "jpg", "webp", "gif"],
     )
     if uploaded_file:
-        if user_input := st.chat_input("물어보고 싶은 내용을 입력해 주세요!"):
+        if user_input := st.chat_input("궁금한 내용을 입력해 주세요!"):
             # 읽어온 파일을 Base64로 인코딩
             image_base64 = base64.b64encode(uploaded_file.read()).decode()
             image = f"data:image/jpeg;base64,{image_base64}"

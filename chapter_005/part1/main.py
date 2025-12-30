@@ -1,5 +1,3 @@
-# Github: https://github.com/naotaka1128/llm_app_codes/chapter05/part1/main.py
-
 import traceback
 import streamlit as st
 from langchain_core.prompts import ChatPromptTemplate
@@ -48,12 +46,12 @@ def init_page():
 
 
 def select_model(temperature=0):
-    models = ("GPT-5 mini", "GPT-5.1", "Claude Sonnet 4.5", "Gemini 2.5 Flash")
+    models = ("GPT-5 mini", "GPT-5.2", "Claude Sonnet 4.5", "Gemini 2.5 Flash")
     model = st.sidebar.radio("Choose a model:", models)
     if model == "GPT-5 mini":
         return ChatOpenAI(temperature=temperature, model="gpt-5-mini")
-    elif model == "GPT-5.1":
-        return ChatOpenAI(temperature=temperature, model="gpt-5.1")
+    elif model == "GPT-5.2":
+        return ChatOpenAI(temperature=temperature, model="gpt-5.2")
     elif model == "Claude Sonnet 4.5":
         return ChatAnthropic(
             temperature=temperature, model="claude-sonnet-4-5-20250929"

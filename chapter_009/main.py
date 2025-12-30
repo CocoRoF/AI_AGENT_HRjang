@@ -1,4 +1,3 @@
-# GitHub: https://github.com/naotaka1128/llm_app_codes/chapter_009/main.py
 import streamlit as st
 from langchain_classic.agents import create_tool_calling_agent, AgentExecutor
 from langchain_classic.memory import ConversationBufferWindowMemory
@@ -41,8 +40,7 @@ CUSTOM_SYSTEM_PROMPT = """
 - 검색 결과의 링크를 클릭해 각 페이지의 콘텐츠를 열람하고 내용을 확인하세요.
 - 한 페이지가 너무 길 경우, 3페이지 이상 스크롤하지 마세요 (메모리 부담 때문).
 - 검색 쿼리를 변경한 뒤 다시 검색을 시도하세요.
-- 검색할 주제에 따라 검색 언어를 적절하게 변경하세요.
-  - 예: 프로그래밍 관련 질문은 영어로 검색하는 것이 더 유리할 수 있습니다.
+- 공식 문서뿐 아니라 블로그, 커뮤니티 등 비공식 자료도 함께 참고하세요.
 
 사용자는 매우 바쁘며, 당신만큼 여유롭지 않습니다.
 따라서 사용자의 수고를 덜어주기 위해 **직접적인 답변**을 제공해주세요.
@@ -86,10 +84,10 @@ def init_messages():
 
 
 def select_model():
-    models = ("GPT-5.1", "Claude Sonnet 4.5", "Gemini 2.5 Flash")
+    models = ("GPT-5.2", "Claude Sonnet 4.5", "Gemini 2.5 Flash")
     model = st.sidebar.radio("Choose a model:", models)
-    if model == "GPT-5.1":
-        return ChatOpenAI(temperature=0, model="gpt-5.1")
+    if model == "GPT-5.2":
+        return ChatOpenAI(temperature=0, model="gpt-5.2")
     elif model == "Claude Sonnet 4.5":
         return ChatAnthropic(temperature=0, model="claude-sonnet-4-5-20250929")
     elif model == "Gemini 2.5 Flash":

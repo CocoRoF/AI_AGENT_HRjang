@@ -1,9 +1,6 @@
 import os
 
-try:
-    import magic
-except ImportError:
-    magic = None
+import mimetypes
 import traceback
 from openai import OpenAI
 from dotenv import load_dotenv
@@ -86,15 +83,14 @@ class CodeInterpreterClient:
     def run(self, code):
 
         prompt = f"""
-        아래 코드를 실행하고 결과를 반환해주세요.
-        - 파일 경로는 절대 변경하지 마세요.
-        - 파일 경로가 잘못된 경우, 오류 메시지를 그대로 반환해주세요.
-        - 임의로 파일명을 추측하거나 생성하지 마세요.
-        - 당신의 견해나 감상은 필요 없으며, 오직 코드 실행 결과만 반환하세요.
+        다음 코드를 실행하고 결과를 반환해 주세요. 
         ```python
         {code}
         ```
-        당신의 견해나 감상은 필요 없으니 코드 실행 결과만 반환해주세요
+        **중요 규칙**:
+        - 생성된 이미지나 파일을 언급할 때 경로(/mnt/data/xxx.png)를 사용하지 마세요
+        - 대신 "이미지를 생성했습니다" 정도로만 언급하고, 파일은 자동으로 첨부됩니다
+        - 코드 실행 결과만 반환해주세요
         """
 
         # add message to thread
@@ -147,13 +143,7 @@ class CodeInterpreterClient:
         data = self.openai_client.files.content(file_id)
         data_bytes = data.read()
 
-        # 파일 내용에서 MIME 타입을 가져옴
-        if magic:
-            mime_type = magic.from_buffer(data_bytes, mime=True)
-        else:
-            import mimetypes
-
-            mime_type = mimetypes.guess_type(file_id)[0] or "application/octet-stream"
+        mime_type = mimetypes.guess_type(file_id)[0] or "application/octet-stream"
 
         # MIME 타입에서 확장자를 가져옴
         extension = mimetypes.guess_extension(mime_type)

@@ -128,7 +128,7 @@ def main():
         with st.chat_message(msg.type):
             display_content(msg.content)
 
-    if prompt := st.chat_input(placeholder="분석하고 싶은 내용을 입력해줘"):
+    if prompt := st.chat_input(placeholder="분석하고 싶은 내용을 입력해주세요."):
         st.chat_message("user").write(prompt)
 
         with st.chat_message("assistant"):

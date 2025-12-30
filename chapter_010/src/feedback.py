@@ -1,5 +1,3 @@
-# GitHub: https://github.com/naotaka1128/llm_app_codes/chapter_010/src/feedback.py
-
 import streamlit as st
 from langsmith import Client
 from streamlit_feedback import streamlit_feedback
@@ -19,6 +17,7 @@ def add_feedback():
         optional_text_label="[선택] 설명을 입력해 주세요",
         key=f"feedback_{run_id}",
     )
+    print("👍 RAW FEEDBACK DATA:", feedback)
 
     scores = {"👍": 1, "👎": 0}
 
@@ -38,6 +37,7 @@ def add_feedback():
                 score=score,
                 comment=feedback.get("text"),
             )
+            print("📩 FEEDBACK SENT TO LANGSMITH:", feedback_record)
             # 피드백 ID와 점수를 세션 상태에 저장
             st.session_state.feedback = {
                 "feedback_id": str(feedback_record.id),
