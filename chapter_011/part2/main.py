@@ -52,16 +52,16 @@ def init_page():
             return_messages=True, memory_key="chat_history", k=10
         )
         st.session_state.custom_system_prompt = load_system_prompt(
-            "./part2/prompt/system_prompt.txt"
+            "./prompt/system_prompt.txt"
         )
         st.session_state.uploaded_files = []
 
 
 def select_model():
-    models = ("GPT-5.1", "Claude Sonnet 4.5", "Gemini 2.5 Flash")
+    models = ("GPT-5.2", "Claude Sonnet 4.5", "Gemini 2.5 Flash")
     model = st.sidebar.radio("Choose a model:", models)
-    if model == "GPT-5.1":
-        return ChatOpenAI(temperature=0, model="gpt-5.1")
+    if model == "GPT-5.2":
+        return ChatOpenAI(temperature=0, model="gpt-5.2")
     elif model == "Claude Sonnet 4.5":
         return ChatAnthropic(temperature=0, model="claude-sonnet-4-5-20250929")
     elif model == "Gemini 2.5 Flash":
