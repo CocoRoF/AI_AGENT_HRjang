@@ -3,7 +3,7 @@ from langchain_openai import ChatOpenAI
 from langchain_core.prompts import ChatPromptTemplate
 from langchain_core.output_parsers import StrOutputParser
 
-###### dotenv를 사용하지 않는 경우 삭제하세요 ######
+# .env 파일에 저장된 API KEY 등을 자동으로 불러오는 부분
 try:
     from dotenv import load_dotenv
 
@@ -12,10 +12,8 @@ except ImportError:
     import warnings
 
     warnings.warn(
-        "dotenv not found. Please make sure to set your environment variables manually.",
-        ImportWarning,
+        "dotenv not found. Please set environment variables manually.", ImportWarning
     )
-################################################
 
 
 def main():
