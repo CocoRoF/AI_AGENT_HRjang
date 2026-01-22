@@ -3,7 +3,7 @@ import streamlit as st
 from langchain_core.prompts import ChatPromptTemplate
 from langchain_core.output_parsers import StrOutputParser
 
-# models
+# LLM 모델 관련 import
 from langchain_openai import ChatOpenAI
 from langchain_anthropic import ChatAnthropic
 from langchain_google_genai import ChatGoogleGenerativeAI
@@ -12,29 +12,11 @@ import requests
 from bs4 import BeautifulSoup
 from urllib.parse import urlparse
 
-###### dotenv를 사용하지 않는 경우 삭제하세요 ######
-try:
-    from dotenv import load_dotenv
-
-    load_dotenv()
-except ImportError:
-    import warnings
-
-    warnings.warn(
-        "dotenv not found. Please make sure to set your environment variables manually.",
-        ImportWarning,
-    )
-################################################
-
 
 SUMMARIZE_PROMPT = """다음 콘텐츠의 내용을 약 300자 정도로 알기 쉽게 요약해주세요.
-
 ========
-
 {content}
-
 ========
-
 한국어로 작성해 주세요!
 """
 
@@ -57,16 +39,16 @@ def select_model(temperature=0):
             temperature=temperature, model="claude-sonnet-4-5-20250929"
         )
     elif model == "Gemini 2.5 Flash":
-        return ChatGoogleGenerativeAI(temperature=temperature, model="gemini-2.5-flash")
+        return ChatGoogleGenerativeAI(
+            temperature=temperature,
+            model="gemini-2.5-flash",
+        )
 
 
 def init_chain():
     llm = select_model()
-    prompt = ChatPromptTemplate.from_messages(
-        [
-            ("user", SUMMARIZE_PROMPT),
-        ]
-    )
+    prompt = ChatPromptTemplate.from_messages([("user", SUMMARIZE_PROMPT)])
+
     output_parser = StrOutputParser()
     chain = prompt | llm | output_parser
     return chain
@@ -102,7 +84,7 @@ def main():
     init_page()
     chain = init_chain()
 
-    # 사용자의 입력을 감시
+    # 사용자가 URL을 입력하면 요약을 수행
     if url := st.text_input("URL: ", key="input"):
         is_valid_url = validate_url(url)
         if not is_valid_url:
@@ -114,9 +96,6 @@ def main():
                 st.markdown("---")
                 st.markdown("## Original Text")
                 st.write(content)
-
-    # 비용을 표시하려면 3장과 동일한 구현을 추가하세요
-    # calc_and_display_costs()
 
 
 if __name__ == "__main__":
