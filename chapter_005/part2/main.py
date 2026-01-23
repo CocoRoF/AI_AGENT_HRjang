@@ -1,4 +1,4 @@
-# Github: https://github.com/naotaka1128/llm_app_codes/chapter05/part2/main.py
+# Github: https://github.com/Youngjin-com/AI_AGENT/tree/main/chapter_005/part2/main.py
 
 import traceback
 import streamlit as st
@@ -11,31 +11,13 @@ from langchain_anthropic import ChatAnthropic
 from langchain_google_genai import ChatGoogleGenerativeAI
 
 from urllib.parse import urlparse
-from langchain_community.document_loaders import YoutubeLoader  # Youtube용
-
-###### dotenv를 사용하지 않는 경우 삭제하세요 ######
-try:
-    from dotenv import load_dotenv
-
-    load_dotenv()
-except ImportError:
-    import warnings
-
-    warnings.warn(
-        "dotenv not found. Please make sure to set your environment variables manually.",
-        ImportWarning,
-    )
-################################################
+from langchain_community.document_loaders import YoutubeLoader
 
 
 SUMMARIZE_PROMPT = """다음 콘텐츠의 내용을 약 300자 정도로 알기 쉽게 요약해주세요.
-
 ========
-
 {content}
-
 ========
-
 한국어로 작성해 주세요!
 """
 
@@ -58,16 +40,16 @@ def select_model(temperature=0):
             temperature=temperature, model="claude-sonnet-4-5-20250929"
         )
     elif model == "Gemini 2.5 Flash":
-        return ChatGoogleGenerativeAI(temperature=temperature, model="gemini-2.5-flash")
+        return ChatGoogleGenerativeAI(
+            temperature=temperature,
+            model="gemini-2.5-flash",
+        )
 
 
 def init_chain():
     llm = select_model()
-    prompt = ChatPromptTemplate.from_messages(
-        [
-            ("user", SUMMARIZE_PROMPT),
-        ]
-    )
+    prompt = ChatPromptTemplate.from_messages([("user", SUMMARIZE_PROMPT)])
+
     output_parser = StrOutputParser()
     chain = prompt | llm | output_parser
     return chain
@@ -91,8 +73,8 @@ def get_content(url):
         try:
             loader = YoutubeLoader.from_youtube_url(
                 url,
-                add_video_info=False,  # 노필요한 메타데이터 요청 제거
-                language=["ko", "en"],  # 영어 → 한글 순으로 자막을 가져온다
+                add_video_info=False,  # 불필요한 메타데이터 요청 제거
+                language=["ko", "en"],  # 한글 자막 우선, 없으면 영어
             )
             res = loader.load()
 
@@ -111,7 +93,7 @@ def main():
     init_page()
     chain = init_chain()
 
-    # 사용자의 입력을 감시
+    # 사용자가 URL을 입력하면 요약을 수행
     if url := st.text_input("URL: ", key="input"):
         is_valid_url = validate_url(url)
         if not is_valid_url:
@@ -123,9 +105,6 @@ def main():
                 st.markdown("---")
                 st.markdown("## Original Text")
                 st.write(content)
-
-    # 비용을 표시하려면 3장과 동일한 구현을 추가하세요
-    # calc_and_display_costs()
 
 
 if __name__ == "__main__":

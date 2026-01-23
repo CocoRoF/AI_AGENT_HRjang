@@ -1,4 +1,4 @@
-# Github: https://github.com/naotaka1128/llm_app_codes/chapter05/part2/map_reduce.py
+# Github: https://github.com/Youngjin-com/AI_AGENT/tree/main/chapter_005/part2/map_reduce.py
 
 import tiktoken
 import traceback
@@ -16,30 +16,12 @@ from langchain_google_genai import ChatGoogleGenerativeAI
 from urllib.parse import urlparse
 from langchain_community.document_loaders import YoutubeLoader  # Youtube용
 
-###### dotenv 를 사용하지 않는 경우는 삭제해주세요 ######
-try:
-    from dotenv import load_dotenv
 
-    load_dotenv()
-except ImportError:
-    import warnings
-
-    warnings.warn(
-        "dotenv not found. Please make sure to set your environment variables manually.",
-        ImportWarning,
-    )
-################################################
-
-
-SUMMARIZE_PROMPT = """아래 콘텐츠의 내용을 약 300자 정도로 알기 쉽게 요약해주세요.
-
+SUMMARIZE_PROMPT = """다음 콘텐츠의 내용을 약 300자 정도로 알기 쉽게 요약해주세요.
 ========
-
 {content}
-
 ========
-
-한국어로 작성해줘!
+한국어로 작성해 주세요!
 """
 
 
@@ -61,7 +43,10 @@ def select_model(temperature=0):
             temperature=temperature, model="claude-sonnet-4-5-20250929"
         )
     elif model == "Gemini 2.5 Flash":
-        return ChatGoogleGenerativeAI(temperature=temperature, model="gemini-2.5-flash")
+        return ChatGoogleGenerativeAI(
+            temperature=temperature,
+            model="gemini-2.5-flash",
+        )
 
 
 def init_summarize_chain():
@@ -80,7 +65,6 @@ def init_chain():
 
     text_splitter = RecursiveCharacterTextSplitter.from_tiktoken_encoder(
         # 모델에 따라 토큰 수 계산 방식이 다르므로 model_name을 지정
-        # Claude 3 사용 시 정확한 토큰 수를 사용할 수 없다는 점에 주의
         model_name="gpt-5",
         # chunk size는 토큰 수로 계산
         chunk_size=16000,
