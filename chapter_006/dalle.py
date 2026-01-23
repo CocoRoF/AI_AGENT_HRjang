@@ -3,21 +3,6 @@ import streamlit as st
 from langchain_openai import ChatOpenAI
 from langchain_community.utilities.dalle_image_generator import DallEAPIWrapper
 
-###### dotenv 을 사용하지 않는 경우는 삭제하세요 ######
-try:
-    from dotenv import load_dotenv
-
-    load_dotenv()
-except ImportError:
-    import warnings
-
-    warnings.warn(
-        "dotenv not found. Please make sure to set your environment variables manually.",
-        ImportWarning,
-    )
-################################################
-
-
 GPT5_PROMPT = """
 먼저, 아래의 사용자의 요청과 업로드된 이미지를 주의 깊게 읽어주세요.
 

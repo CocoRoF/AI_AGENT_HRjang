@@ -2,20 +2,6 @@ import base64
 import streamlit as st
 from langchain_openai import ChatOpenAI
 
-###### dotenv 을 사용하지 않는 경우는 삭제하세요 ######
-try:
-    from dotenv import load_dotenv
-
-    load_dotenv()
-except ImportError:
-    import warnings
-
-    warnings.warn(
-        "dotenv not found. Please make sure to set your environment variables manually.",
-        ImportWarning,
-    )
-################################################
-
 
 def init_page():
     st.set_page_config(page_title="Image Recognizer", page_icon="🤗")
