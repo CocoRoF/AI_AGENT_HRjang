@@ -12,16 +12,16 @@ from langchain_google_genai import ChatGoogleGenerativeAI
 # 2025년 12월 기준 최신 모델 가격 (per 1M tokens)
 MODEL_PRICES = {
     "input": {
-        "gpt-5-mini": 0.25 / 1_000_000,  # GPT-5 mini (빠르고 저렴)
-        "gpt-5.1": 1.25 / 1_000_000,  # GPT-5.1 (코딩과 에이전트 작업용)
-        "claude-sonnet-4-5-20250929": 3 / 1_000_000,  # Claude Sonnet 4.5 최신
-        "gemini-2.5-flash": 0.30 / 1_000_000,  # Gemini 2.5 Flash 최신
+        "gpt-5-mini": 0.25 / 1_000_000,  # GPT-5 mini
+        "gpt-5.1": 1.25 / 1_000_000,  # GPT-5.1
+        "claude-sonnet-4-5-20250929": 3 / 1_000_000,
+        "gemini-2.5-flash": 0.30 / 1_000_000,
     },
     "output": {
-        "gpt-5-mini": 2 / 1_000_000,  # GPT-5 mini
-        "gpt-5.1": 10 / 1_000_000,  # GPT-5.1
-        "claude-sonnet-4-5-20250929": 15 / 1_000_000,  # Claude Sonnet 4.5 최신
-        "gemini-2.5-flash": 2.50 / 1_000_000,  # Gemini 2.5 Flash 최신
+        "gpt-5-mini": 2 / 1_000_000,
+        "gpt-5.1": 10 / 1_000_000,
+        "claude-sonnet-4-5-20250929": 15 / 1_000_000,
+        "gemini-2.5-flash": 2.50 / 1_000_000,
     },
 }
 
@@ -50,17 +50,30 @@ def select_model():
 
     if model == "GPT-5 mini":
         st.session_state.model_name = "gpt-5-mini"
-        return ChatOpenAI(temperature=temperature, model=st.session_state.model_name)
+        return ChatOpenAI(
+            temperature=temperature,
+            model=st.session_state.model_name,
+        )
+
     elif model == "GPT-5.1":
         st.session_state.model_name = "gpt-5.1"
-        return ChatOpenAI(temperature=temperature, model=st.session_state.model_name)
+        return ChatOpenAI(
+            temperature=temperature,
+            model=st.session_state.model_name,
+        )
+
     elif model == "Claude Sonnet 4.5":
         st.session_state.model_name = "claude-sonnet-4-5-20250929"
-        return ChatAnthropic(temperature=temperature, model=st.session_state.model_name)
+        return ChatAnthropic(
+            temperature=temperature,
+            model=st.session_state.model_name,
+        )
+
     elif model == "Gemini 2.5 Flash":
         st.session_state.model_name = "gemini-2.5-flash"
         return ChatGoogleGenerativeAI(
-            temperature=temperature, model=st.session_state.model_name
+            temperature=temperature,
+            model=st.session_state.model_name,
         )
 
 

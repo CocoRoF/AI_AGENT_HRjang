@@ -8,21 +8,6 @@ from langchain_openai import ChatOpenAI
 from langchain_anthropic import ChatAnthropic
 from langchain_google_genai import ChatGoogleGenerativeAI
 
-###### dotenv を利用しない場合は消してください ######
-# dotenv를 사용하지 않는 경우는 삭제하세요
-try:
-    from dotenv import load_dotenv
-
-    load_dotenv()
-except ImportError:
-    import warnings
-
-    warnings.warn(
-        "dotenv not found. Please make sure to set your environment variables manually.",
-        ImportWarning,
-    )
-################################################
-
 
 def init_page():
     st.set_page_config(page_title="Ask My PDF(s)", page_icon="🧐")
@@ -49,16 +34,17 @@ def init_qa_chain():
     prompt = ChatPromptTemplate.from_template(
         """
     다음 배경 지식을 사용해서 사용자 질문에 답변해 주세요.
-
+    
     ===
     배경 지식
     {context}
-
+    
     ===
     사용자 질문
     {question}
     """
     )
+
     retriever = st.session_state.vectorstore.as_retriever(
         # "mmr", "similarity_score_threshold" 등도 사용 가능
         search_type="similarity",
