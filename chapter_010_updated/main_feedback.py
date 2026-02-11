@@ -1,9 +1,9 @@
 import streamlit as st
-from langchain_classic.agents import create_tool_calling_agent, AgentExecutor
-from langchain_classic.memory import ConversationBufferWindowMemory
-from langchain_core.prompts import MessagesPlaceholder, ChatPromptTemplate
-from langchain_core.runnables import RunnableConfig
-from langchain_community.callbacks import StreamlitCallbackHandler
+import uuid  # thread_id 생성용
+
+from langchain.agents import create_agent
+from langchain.agents.middleware import SummarizationMiddleware
+from langgraph.checkpoint.memory import InMemorySaver
 
 # models
 from langchain_openai import ChatOpenAI
@@ -13,10 +13,13 @@ from langchain_google_genai import ChatGoogleGenerativeAI
 # custom tools
 from tools.fetch_qa_content import fetch_qa_content
 from tools.fetch_stores_by_prefecture import fetch_stores_by_prefecture
+
+# cache / feedback
 from src.cache import Cache
+from src.feedback import add_feedback
 
 
-@st.cache_data  # 캐시를 사용하도록 변경
+@st.cache_data
 def load_system_prompt(file_path):
     with open(file_path, "r", encoding="utf-8") as f:
         return f.read()
@@ -35,14 +38,10 @@ def init_messages():
             "영진모바일 고객지원에 오신 것을 환영합니다. 질문을 입력해 주세요 🐻"
         )
         st.session_state.messages = [{"role": "assistant", "content": welcome_message}]
-        st.session_state["memory"] = ConversationBufferWindowMemory(
-            return_messages=True, memory_key="chat_history", k=10
-        )
+        st.session_state["checkpointer"] = InMemorySaver()
+        st.session_state["thread_id"] = str(uuid.uuid4())
 
-    if len(st.session_state.messages) == 1:  # 환영 메시지뿐인 경우
-        st.session_state["first_question"] = True  # 추가 부분
-    else:
-        st.session_state["first_question"] = False  # 추가 부분
+    st.session_state["first_question"] = len(st.session_state.messages) == 1
 
 
 def select_model(temperature=0):
@@ -60,59 +59,79 @@ def select_model(temperature=0):
         return ChatGoogleGenerativeAI(temperature=temperature, model="gemini-2.5-flash")
 
 
-def create_agent():
-    ## https://learn.deeplearning.ai/functions-tools-agents-langchain/lesson/7/conversational-agent
+def create_customer_support_agent():
     tools = [fetch_qa_content, fetch_stores_by_prefecture]
-    # 캐시를 사용하도록 변경
     custom_system_prompt = load_system_prompt("./prompt/system_prompt.txt")
-    prompt = ChatPromptTemplate.from_messages(
-        [
-            ("system", custom_system_prompt),
-            MessagesPlaceholder(variable_name="chat_history"),
-            ("user", "{input}"),
-            MessagesPlaceholder(variable_name="agent_scratchpad"),
-        ]
-    )
     llm = select_model()
-    agent = create_tool_calling_agent(llm, tools, prompt)
-    return AgentExecutor(
-        agent=agent, tools=tools, verbose=True, memory=st.session_state["memory"]
+
+    summarization_middleware = SummarizationMiddleware(
+        model=llm,
+        max_tokens_before_summary=8000,
+        messages_to_keep=10,
     )
+
+    agent = create_agent(
+        model=llm,
+        tools=tools,
+        system_prompt=custom_system_prompt,
+        checkpointer=st.session_state["checkpointer"],
+        middleware=[summarization_middleware],
+        debug=True,
+    )
+
+    return agent
 
 
 def main():
     init_page()
     init_messages()
-    customer_support_agent = create_agent()
 
-    # 캐시 초기화
+    if "run_id" not in st.session_state:
+        st.session_state["run_id"] = None
+
+    customer_support_agent = create_customer_support_agent()
     cache = Cache()
+    config = {"configurable": {"thread_id": st.session_state["thread_id"]}}
 
-    for msg in st.session_state["memory"].chat_memory.messages:
-        st.chat_message(msg.type).write(msg.content)
+    for msg in st.session_state.messages:
+        st.chat_message(msg["role"]).write(msg["content"])
 
     if prompt := st.chat_input(placeholder="법인 명의로 계약이 가능한가요?"):
         st.chat_message("user").write(prompt)
+        st.session_state.messages.append({"role": "user", "content": prompt})
 
-        # 처음 질문인 경우 캐시를 확인
+        # 첫 번째 질문인 경우 캐시 확인
         if st.session_state["first_question"]:
             if cache_content := cache.search(query=prompt):
-                st.chat_message("assistant").write(f"(cache) {cache_content}")
+                with st.chat_message("assistant"):
+                    st.write(f"(cache) {cache_content}")
                 st.session_state.messages.append(
                     {"role": "assistant", "content": cache_content}
                 )
-                st.stop()  # 캐시 내용을 출력한 경우 실행 종료
+                st.stop()
 
         with st.chat_message("assistant"):
-            st_cb = StreamlitCallbackHandler(st.container(), expand_new_thoughts=True)
-            response = customer_support_agent.invoke(
-                {"input": prompt}, config=RunnableConfig({"callbacks": [st_cb]})
-            )
-            st.write(response["output"])
+            with st.spinner("답변 생성 중..."):
+                run_id = str(uuid.uuid4())
+                result = customer_support_agent.invoke(
+                    {"messages": [{"role": "user", "content": prompt}]},
+                    {**config, "run_id": run_id},
+                )
+                st.session_state["run_id"] = run_id
+            response = result["messages"][-1].content
+            st.write(response)
 
-        # 처음 질문인 경우 캐시에 저장
-        if st.session_state["first_question"]:
-            cache.save(prompt, response["output"])
+            if response:
+                st.session_state.messages.append(
+                    {"role": "assistant", "content": response}
+                )
+
+        # 첫 번째 질문인 경우 캐시에 저장
+        if st.session_state["first_question"] and response:
+            cache.save(prompt, response)
+
+    # LangSmith feedback 버튼
+    add_feedback()
 
 
 if __name__ == "__main__":

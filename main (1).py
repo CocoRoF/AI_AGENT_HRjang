@@ -1,8 +1,9 @@
 import streamlit as st
-from langchain_classic.agents import create_tool_calling_agent, AgentExecutor
-from langchain_classic.memory import ConversationBufferWindowMemory
+from langchain.agents import create_agent
 from langchain_core.prompts import MessagesPlaceholder, ChatPromptTemplate
 from langchain_core.runnables import RunnableConfig
+from langchain_core.chat_history import InMemoryChatMessageHistory
+from langchain_core.messages import HumanMessage, AIMessage
 from langchain_community.callbacks import StreamlitCallbackHandler
 
 # models
@@ -61,6 +62,9 @@ CUSTOM_SYSTEM_PROMPT = """
 사용자가 한국어로 질문하면 한국어로, 스페인어로 질문하면 스페인어로 답변해야 합니다.
 """
 
+# 대화 기록 윈도우 크기 (최근 k개 대화만 유지)
+MEMORY_WINDOW_SIZE = 10
+
 
 def init_page():
     st.set_page_config(page_title="Web Browsing Agent", page_icon="🤗")
@@ -70,17 +74,18 @@ def init_page():
 
 def init_messages():
     clear_button = st.sidebar.button("Clear Conversation", key="clear")
-    if clear_button or "messages" not in st.session_state:
+    if clear_button or "chat_history" not in st.session_state:
+        st.session_state.chat_history = InMemoryChatMessageHistory()
         st.session_state.messages = [
             {"role": "assistant", "content": "안녕하세요! 무엇이든 질문해주세요!"}
         ]
-        st.session_state["memory"] = ConversationBufferWindowMemory(
-            return_messages=True, memory_key="chat_history", k=10
-        )
-        # 아래와 같이도 작성할 수 있습니다
-        # from langchain_community.chat_message_histories import StreamlitChatMessageHistory
-        # msgs = StreamlitChatMessageHistory(key="special_app_key")
-        # st.session_state['memory'] = ConversationBufferMemory(memory_key="history", chat_memory=msgs)
+
+
+def get_chat_history_messages():
+    """윈도우 크기만큼의 최근 대화 기록 반환"""
+    messages = st.session_state.chat_history.messages
+    # 최근 k*2개 메시지만 유지 (user + assistant 쌍)
+    return messages[-(MEMORY_WINDOW_SIZE * 2):]
 
 
 def select_model():
@@ -94,7 +99,8 @@ def select_model():
         return ChatGoogleGenerativeAI(temperature=0, model="gemini-2.5-flash")
 
 
-def create_agent():
+def create_web_agent():
+    """LangChain 1.0+ create_agent 함수를 사용한 에이전트 생성"""
     tools = [search_ddg, fetch_page]
     prompt = ChatPromptTemplate.from_messages(
         [
@@ -105,32 +111,49 @@ def create_agent():
         ]
     )
     llm = select_model()
-    agent = create_tool_calling_agent(llm, tools, prompt)
-    return AgentExecutor(
-        agent=agent, tools=tools, verbose=True, memory=st.session_state["memory"]
+    
+    # LangChain 1.0+: create_agent 단일 함수로 에이전트 생성
+    return create_agent(
+        llm,
+        tools=tools,
+        prompt=prompt,
+        verbose=True
     )
 
 
 def main():
     init_page()
     init_messages()
-    web_browsing_agent = create_agent()
+    web_browsing_agent = create_web_agent()
 
-    for msg in st.session_state["memory"].chat_memory.messages:
-        st.chat_message(msg.type).write(msg.content)
+    # 저장된 메시지 표시
+    for msg in st.session_state.messages:
+        st.chat_message(msg["role"]).write(msg["content"])
 
-    if prompt := st.chat_input(placeholder="2025 한국시리즈 우승팀?"):
-        st.chat_message("user").write(prompt)
+    if user_input := st.chat_input(placeholder="2025 한국시리즈 우승팀?"):
+        st.chat_message("user").write(user_input)
+        st.session_state.messages.append({"role": "user", "content": user_input})
 
         with st.chat_message("assistant"):
             # 콜백 함수 설정 (에이전트 동작 시각화용)
             st_cb = StreamlitCallbackHandler(st.container(), expand_new_thoughts=True)
 
-            # 에이전트 실행
+            # 에이전트 실행 (chat_history를 직접 전달)
             response = web_browsing_agent.invoke(
-                {"input": prompt}, config=RunnableConfig({"callbacks": [st_cb]})
+                {
+                    "input": user_input,
+                    "chat_history": get_chat_history_messages()
+                },
+                config=RunnableConfig({"callbacks": [st_cb]})
             )
-            st.write(response["output"])
+            
+            output = response["output"]
+            st.write(output)
+            
+            # 대화 기록 저장
+            st.session_state.chat_history.add_user_message(user_input)
+            st.session_state.chat_history.add_ai_message(output)
+            st.session_state.messages.append({"role": "assistant", "content": output})
 
 
 if __name__ == "__main__":
