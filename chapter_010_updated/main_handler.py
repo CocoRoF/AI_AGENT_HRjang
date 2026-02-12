@@ -1,5 +1,5 @@
 import streamlit as st
-import uuid
+from langsmith import uuid7
 
 from langchain.agents import create_agent
 from langchain.agents.middleware import SummarizationMiddleware
@@ -57,7 +57,7 @@ def init_messages():
         )
         st.session_state.messages = [{"role": "assistant", "content": welcome_message}]
         st.session_state["checkpointer"] = InMemorySaver()
-        st.session_state["thread_id"] = str(uuid.uuid4())
+        st.session_state["thread_id"] = str(uuid7())
 
 
 def select_model(temperature=0):

@@ -1,33 +1,25 @@
-cache = Cache()
-config = {"configurable": {"thread_id": st.session_state["thread_id"]}}
+from src.feedback import add_feedback
 
-for msg in st.session_state.messages:
-    st.chat_message(msg["role"]).write(msg["content"])
+...
 
-if prompt := st.chat_input(placeholder="법인 명의로 계약이 가능한가요?"):
-    st.chat_message("user").write(prompt)
-    st.session_state.messages.append({"role": "user", "content": prompt})
 
-    # 첫 번째 질문인 경우 캐시 확인
-    if st.session_state["first_question"]:
-        if cache_content := cache.search(query=prompt):
-            st.chat_message("assistant").write(f"(cache) {cache_content}")
-            st.session_state.messages.append(
-                {"role": "assistant", "content": cache_content}
-            )
-            st.stop()  # 캐시 내용을 출력한 경우 실행 종료
+def main():
+    ...
 
-    with st.chat_message("assistant"):
-        with st.spinner("답변 생성 중..."):
-            result = customer_support_agent.invoke(
-                {"messages": [{"role": "user", "content": prompt}]}, config
-            )
-        response = result["messages"][-1].content
-        st.write(response)
+    customer_support_agent = create_customer_support_agent()
 
-        if response:
-            st.session_state.messages.append({"role": "assistant", "content": response})
+    if prompt := st.chat_input(placeholder="법인 명의로 계약이 가능한가요?"):
+        ...
 
-    # 첫 번째 질문인 경우 캐시에 저장
-    if st.session_state["first_question"] and response:
-        cache.save(prompt, response)
+        with st.chat_message("assistant"):
+            with st.spinner("답변 생성 중..."):
+                run_id = uuid7()
+                result = customer_support_agent.invoke(
+                    {"messages": [{"role": "user", "content": prompt}]},
+                    {**config, "run_id": run_id},
+                )
+            response = result["messages"][-1].content
+            st.write(response)
+
+    # LangSmith feedback 버튼
+    add_feedback()

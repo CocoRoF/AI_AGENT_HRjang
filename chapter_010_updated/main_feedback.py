@@ -1,5 +1,5 @@
 import streamlit as st
-import uuid  # thread_id 생성용
+from langsmith import uuid7
 
 from langchain.agents import create_agent
 from langchain.agents.middleware import SummarizationMiddleware
@@ -39,7 +39,7 @@ def init_messages():
         )
         st.session_state.messages = [{"role": "assistant", "content": welcome_message}]
         st.session_state["checkpointer"] = InMemorySaver()
-        st.session_state["thread_id"] = str(uuid.uuid4())
+        st.session_state["thread_id"] = str(uuid7())
 
     st.session_state["first_question"] = len(st.session_state.messages) == 1
 
@@ -112,7 +112,7 @@ def main():
 
         with st.chat_message("assistant"):
             with st.spinner("답변 생성 중..."):
-                run_id = str(uuid.uuid4())
+                run_id = uuid7()
                 result = customer_support_agent.invoke(
                     {"messages": [{"role": "user", "content": prompt}]},
                     {**config, "run_id": run_id},

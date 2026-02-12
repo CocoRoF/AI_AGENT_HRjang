@@ -5,7 +5,7 @@ from langchain_community.vectorstores import FAISS
 
 def main():
     # CSV 파일에서 "자주 묻는 질문"을 읽어오기
-    qa_df = pd.read_csv("./data/bearmobile_QA.csv")  # question,answer
+    qa_df = pd.read_csv("./data/youngjinmobile_QA.csv")  # question,answer
 
     # 벡터 DB에 저장할 데이터를 생성
     qa_texts = []
