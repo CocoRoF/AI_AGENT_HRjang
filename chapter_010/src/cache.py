@@ -44,7 +44,7 @@ class Cache:
             query=query,
             k=1,
             # 유사도 임계값은 조정이 필요함 / L2 거리이므로 값이 작을수록 유사도가 높음
-            score_threshold=0.05,
+            score_threshold=0.3,
         )
         if docs:
             return docs[0][0].metadata["answer"]
