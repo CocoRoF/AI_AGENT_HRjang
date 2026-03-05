@@ -59,11 +59,9 @@ def init_messages():
 
 
 def select_model(temperature=0):
-    models = ("GPT-5 mini", "GPT-5.2", "Claude Sonnet 4.5", "Gemini 2.5 Flash")
+    models = ("GPT-5.2", "Claude Sonnet 4.5", "Gemini 2.5 Flash")
     model = st.sidebar.radio("사용할 모델 선택:", models)
-    if model == "GPT-5 mini":
-        return ChatOpenAI(temperature=temperature, model="gpt-5-mini")
-    elif model == "GPT-5.2":
+    if model == "GPT-5.2":
         return ChatOpenAI(temperature=temperature, model="gpt-5.2")
     elif model == "Claude Sonnet 4.5":
         return ChatAnthropic(
@@ -79,8 +77,8 @@ def create_customer_support_agent():
 
     summarization_middleware = SummarizationMiddleware(
         model=llm,
-        max_tokens_before_summary=8000,
-        messages_to_keep=10,
+        trigger=("tokens", 8000),
+        keep=("messages", 10),
     )
 
     agent = create_agent(

@@ -6,14 +6,14 @@ from pydantic import BaseModel, Field
 
 
 class FetchQAContentInput(BaseModel):
-    """타입을 지정하기 위한 클래스"""
+    """입력 데이터 타입을 정의하기 위한 클래스"""
 
     query: str = Field()
 
 
 @st.cache_resource(show_spinner=False)
 def load_qa_vectorstore(vectorstore_path="./vectorstore/qa_vectorstore"):
-    """'자주 묻는 질문' 벡터 DB를 로드"""
+    """FAQ 벡터 DB를 로드"""
     embeddings = OpenAIEmbeddings()
     return FAISS.load_local(
         vectorstore_path, embeddings=embeddings, allow_dangerous_deserialization=True
@@ -23,13 +23,12 @@ def load_qa_vectorstore(vectorstore_path="./vectorstore/qa_vectorstore"):
 @tool(args_schema=FetchQAContentInput)
 def fetch_qa_content(query):
     """
-    '자주 묻는 질문' 리스트에서 사용자의 질문과 관련된 콘텐츠를 검색하는 도구입니다.
+    사용자 질문과 관련된 FAQ를 검색하는 툴(tool)입니다.
     '영진모바일'에 관한 구체적인 정보를 얻는 데 유용합니다.
 
     반환값:
-    - similarity: 질문과의 유사도 (0~1). 값이 높을수록 관련성이 높으며,
-                  0.5 미만은 반환되지 않습니다.
-    - content: 자주 묻는 질문과 그에 대한 답변 텍스트
+    - similarity: 질문과의 유사도(0~1). 값이 클수록 관련성이 높으며, 0.5 미만인 결과는 제외
+    - content: 매칭된 FAQ 질의응답 텍스트
 
     빈 리스트가 반환된 경우 관련 답변을 찾지 못한 것이므로, 질문을 좀 더 구체적으로 다시 요청하세요.
 

@@ -76,8 +76,8 @@ def create_web_browsing_agent():
 
     summarization_middleware = SummarizationMiddleware(
         model=llm,
-        max_tokens_before_summary=8000,
-        messages_to_keep=10,
+        trigger=("tokens", 8000),
+        keep=("messages", 10),
     )
 
     agent = create_agent(
@@ -85,7 +85,7 @@ def create_web_browsing_agent():
         tools=tools,
         system_prompt=CUSTOM_SYSTEM_PROMPT,
         middleware=[summarization_middleware],
-        debug=True
+        debug=True,
     )
 
     return agent
@@ -115,7 +115,9 @@ def main():
             )
 
             if response:
-                st.session_state.messages.append({"role": "assistant", "content": response})
+                st.session_state.messages.append(
+                    {"role": "assistant", "content": response}
+                )
 
 
 if __name__ == "__main__":

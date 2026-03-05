@@ -81,8 +81,8 @@ def create_customer_support_agent():
 
     summarization_middleware = SummarizationMiddleware(
         model=llm,
-        max_tokens_before_summary=8000,
-        messages_to_keep=10,
+        trigger=("tokens", 8000),
+        keep=("messages", 10),
     )
 
     agent = create_agent(
