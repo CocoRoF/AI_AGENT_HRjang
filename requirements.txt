@@ -57,7 +57,7 @@ google-cloud-bigquery==3.38.0
 db-dtypes==1.4.4
 
 # Additional tools
-# youngjin-langchain-tools==0.2.1
+youngjin-langchain-tools==0.3.4
 
 # For website summarization
 # 5.1

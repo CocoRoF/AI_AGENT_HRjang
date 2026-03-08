@@ -4,3 +4,6 @@
 **/.env
 **/secrets.toml
 **/.DS_Store
+
+# Virtual environment만 바꾸었습니다.
+.venv
