@@ -35,7 +35,7 @@ def search_ddgs(query, max_result_num=5):
     -------
     List[Dict[str, str]]: title, snippet, url
     """
-    res = DDGS().text(query, region="ko-kr", safesearch="off", backend="duckduckgo")
+    res = DDGS().text(query, region="ko-kr", safesearch="off")
     return [
         {
             "title": r.get("title", ""),
