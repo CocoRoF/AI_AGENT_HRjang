@@ -99,8 +99,8 @@ def get_message_counts(text):
         try:
             encoding = tiktoken.encoding_for_model(st.session_state.model_name)
         except KeyError:
-            # tiktoken이 인식하지 못하는 모델명은 o200k_base 인코딩 사용
-            encoding = tiktoken.get_encoding("o200k_base")
+            # tiktoken이 인식하지 못하는 모델(ex: Claude 모델)은 gpt-4o 인코딩 사용
+            encoding = tiktoken.encoding_for_model("gpt-4o")
         return len(encoding.encode(text))
 
 

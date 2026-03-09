@@ -99,11 +99,11 @@ def main():
     if generated_image_base64:
         st.markdown("### Question")
         st.write(user_input)
-        st.image(uploaded_file, use_container_width=True)
+        st.image(uploaded_file, width="stretch")
         st.markdown("### Generated Image")
         # base64를 디코딩하여 이미지로 표시
         image_bytes = base64.b64decode(generated_image_base64)
-        st.image(image_bytes, caption=image_prompt, use_container_width=True)
+        st.image(image_bytes, caption=image_prompt, width="stretch")
 
 
 if __name__ == "__main__":
