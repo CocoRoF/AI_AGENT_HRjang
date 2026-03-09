@@ -20,7 +20,8 @@ def main():
     prompt = ChatPromptTemplate.from_messages(
         [
             ("system", "당신은 친절하고 유용한 도움을 주는 어시스턴트입니다."),
-            MessagesPlaceholder(variable_name="history")("user", "{user_input}"),
+            MessagesPlaceholder(variable_name="history"),
+            ("user", "{user_input}"),
         ]
     )
 

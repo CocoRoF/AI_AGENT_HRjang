@@ -96,11 +96,11 @@ def get_message_counts(text):
     if "gemini" in st.session_state.model_name:
         return st.session_state.llm.get_num_tokens(text)
     else:
-        if "gpt" in st.session_state.model_name:
+        try:
             encoding = tiktoken.encoding_for_model(st.session_state.model_name)
-        else:
-            # Claude 모델은 gpt-4o 인코딩 사용
-            encoding = tiktoken.encoding_for_model("gpt-4o")
+        except KeyError:
+            # tiktoken이 인식하지 못하는 모델명은 o200k_base 인코딩 사용
+            encoding = tiktoken.get_encoding("o200k_base")
         return len(encoding.encode(text))
 
 

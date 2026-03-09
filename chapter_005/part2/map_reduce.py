@@ -126,7 +126,7 @@ def get_content(url):
                 return res[0].page_content
             else:
                 return None
-        except:
+        except Exception as e:
             st.error(f"Error occurred: {e}")
             st.write(traceback.format_exc())
             return None
