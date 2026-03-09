@@ -1,5 +1,6 @@
 from itertools import islice
 from ddgs import DDGS
+from ddgs.exceptions import DDGSException
 from langchain_core.tools import tool
 from pydantic import BaseModel, Field
 
@@ -35,12 +36,15 @@ def search_ddgs(query, max_result_num=5):
     -------
     List[Dict[str, str]]: title, snippet, url
     """
-    res = DDGS().text(query, region="ko-kr", safesearch="off")
-    return [
-        {
-            "title": r.get("title", ""),
-            "snippet": r.get("body", ""),
-            "url": r.get("href", ""),
-        }
-        for r in islice(res, max_result_num)
-    ]
+    try:
+        res = DDGS().text(query, region="ko-kr", safesearch="off", backend="auto")
+        return [
+            {
+                "title": r.get("title", ""),
+                "snippet": r.get("body", ""),
+                "url": r.get("href", ""),
+            }
+            for r in islice(res, max_result_num)
+        ]
+    except DDGSException:
+        return f"'{query}'에 대한 검색 결과가 없습니다. 다른 키워드로 다시 시도하세요."
